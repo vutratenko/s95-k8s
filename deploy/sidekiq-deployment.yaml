@@ -50,16 +50,11 @@ spec:
             limits:
               memory: 1536Mi
           volumeMounts:
-            - name: storage
-              mountPath: /usr/src/app/storage
             - name: additional-events
               mountPath: /usr/src/app/config/additional_events.yml
               subPath: additional_events.yml
               readOnly: true
       volumes:
-        - name: storage
-          persistentVolumeClaim:
-            claimName: s95-storage
         - name: additional-events
           configMap:
             name: s95-additional-events
