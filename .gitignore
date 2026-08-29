@@ -1,0 +1,3 @@
+secrets/s95-app-secrets.env
+*.env
+!*.env.example

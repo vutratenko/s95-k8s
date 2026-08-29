@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: s95-additional-events
+data:
+  additional_events.yml: |
+    shared:
+      lensk: '10:00'
+      gomel: '11:00'
+      belgrade: '09:00'

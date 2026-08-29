@@ -1,0 +1,27 @@
+apiVersion: acid.zalan.do/v1
+kind: postgresql
+metadata:
+  name: s95-db
+  namespace: s95
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+  labels:
+    team: acid
+spec:
+  teamId: acid
+  numberOfInstances: 1
+  postgresql:
+    version: "17"
+  users:
+    s95: []
+  databases:
+    s95: s95
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+  volume:
+    size: 20Gi

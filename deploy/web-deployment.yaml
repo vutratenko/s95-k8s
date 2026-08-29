@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: s95-web
+  labels:
+    app.kubernetes.io/name: s95
+    app.kubernetes.io/component: web
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: s95
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: s95
+        app.kubernetes.io/component: web
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: web
+          image: registry.sion2k.ru/s95/web:latest
+          imagePullPolicy: Always
+          command: ["/usr/src/app/bin/docker-entrypoint"]
+          args: ["web"]
+          ports:
+            - name: http
+              containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: s95-env
+            - secretRef:
+                name: s95-app-secrets
+          env:
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: s95.s95-db.credentials.postgresql.acid.zalan.do
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: s95.s95-db.credentials.postgresql.acid.zalan.do
+                  key: password
+          readinessProbe:
+            httpGet:
+              path: /up
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /up
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              memory: 2Gi
+          volumeMounts:
+            - name: storage
+              mountPath: /usr/src/app/storage
+            - name: additional-events
+              mountPath: /usr/src/app/config/additional_events.yml
+              subPath: additional_events.yml
+              readOnly: true
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: s95-storage
+        - name: additional-events
+          configMap:
+            name: s95-additional-events

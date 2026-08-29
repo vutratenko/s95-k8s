@@ -1,0 +1,52 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: s95-invite-newbies
+  labels:
+    app.kubernetes.io/name: s95
+    app.kubernetes.io/component: cron
+spec:
+  schedule: "0 10 * * 5"
+  timeZone: Europe/Moscow
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          imagePullSecrets:
+            - name: regcred
+          containers:
+            - name: rake
+              image: registry.sion2k.ru/s95/web:latest
+              imagePullPolicy: Always
+              command: ["/usr/src/app/bin/docker-entrypoint"]
+              args: ["rake", "notification:invite_newbies"]
+              envFrom:
+                - configMapRef:
+                    name: s95-env
+                - secretRef:
+                    name: s95-app-secrets
+              env:
+                - name: DATABASE_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: s95.s95-db.credentials.postgresql.acid.zalan.do
+                      key: username
+                - name: DATABASE_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: s95.s95-db.credentials.postgresql.acid.zalan.do
+                      key: password
+              volumeMounts:
+                - name: additional-events
+                  mountPath: /usr/src/app/config/additional_events.yml
+                  subPath: additional_events.yml
+                  readOnly: true
+          volumes:
+            - name: additional-events
+              configMap:
+                name: s95-additional-events

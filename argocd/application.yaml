@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: s95
+  namespace: shturval-cd
+spec:
+  project: default
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: s95
+  sources:
+    - repoURL: https://github.com/vutratenko/s95-k8s.git
+      targetRevision: main
+      path: postgres
+    - repoURL: https://github.com/vutratenko/s95-k8s.git
+      targetRevision: main
+      path: redis
+    - repoURL: https://github.com/vutratenko/s95-k8s.git
+      targetRevision: main
+      path: memcached
+    - repoURL: https://github.com/vutratenko/s95-k8s.git
+      targetRevision: main
+      path: deploy
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

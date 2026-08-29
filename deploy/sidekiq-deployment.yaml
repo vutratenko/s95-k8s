@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: s95-sidekiq
+  labels:
+    app.kubernetes.io/name: s95
+    app.kubernetes.io/component: sidekiq
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: s95
+      app.kubernetes.io/component: sidekiq
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: s95
+        app.kubernetes.io/component: sidekiq
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: sidekiq
+          image: registry.sion2k.ru/s95/web:latest
+          imagePullPolicy: Always
+          command: ["/usr/src/app/bin/docker-entrypoint"]
+          args: ["sidekiq"]
+          envFrom:
+            - configMapRef:
+                name: s95-env
+            - secretRef:
+                name: s95-app-secrets
+          env:
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: s95.s95-db.credentials.postgresql.acid.zalan.do
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: s95.s95-db.credentials.postgresql.acid.zalan.do
+                  key: password
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              memory: 1536Mi
+          volumeMounts:
+            - name: storage
+              mountPath: /usr/src/app/storage
+            - name: additional-events
+              mountPath: /usr/src/app/config/additional_events.yml
+              subPath: additional_events.yml
+              readOnly: true
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: s95-storage
+        - name: additional-events
+          configMap:
+            name: s95-additional-events
