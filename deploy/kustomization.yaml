@@ -19,4 +19,4 @@ resources:
   - cronjobs/incorrect-activities.yaml
 images:
   - name: registry.sion2k.ru/s95/web
-    newTag: latest
+    newTag: f57d1537
