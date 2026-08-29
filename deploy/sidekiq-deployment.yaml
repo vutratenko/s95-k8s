@@ -20,7 +20,7 @@ spec:
         app.kubernetes.io/component: sidekiq
     spec:
       imagePullSecrets:
-        - name: regcred
+        - name: registry-sion2k-pull
       containers:
         - name: sidekiq
           image: registry.sion2k.ru/s95/web:latest

@@ -20,7 +20,7 @@ spec:
         app.kubernetes.io/component: web
     spec:
       imagePullSecrets:
-        - name: regcred
+        - name: registry-sion2k-pull
       containers:
         - name: web
           image: registry.sion2k.ru/s95/web:latest

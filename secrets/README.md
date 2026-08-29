@@ -49,14 +49,12 @@ kubectl cp storage/. s95/$(kubectl get pod -n s95 -l app.kubernetes.io/component
 
 ## Registry pull secret
 
-If needed, create `regcred` in namespace `s95`:
+If needed, create `registry-sion2k-pull` in namespace `s95` (copy from another namespace):
 
 ```bash
-kubectl create secret docker-registry regcred \
-  --namespace s95 \
-  --docker-server=registry.sion2k.ru \
-  --docker-username=USER \
-  --docker-password=PASS
+kubectl get secret registry-sion2k-pull -n chem-ya-krasila -o yaml | \
+  sed 's/namespace: chem-ya-krasila/namespace: s95/' | \
+  kubectl apply -f -
 ```
 
 ## additional_events.yml
